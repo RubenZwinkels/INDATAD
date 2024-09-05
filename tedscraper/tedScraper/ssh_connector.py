@@ -1,6 +1,8 @@
 import paramiko
 
 def get_video_ids(host, username, password):
+    video_ids = []
+
     try:
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -12,8 +14,8 @@ def get_video_ids(host, username, password):
         command = "cd /data/video && ls"
         stdin, stdout, stderr = ssh.exec_command(command)
 
-        print("Uitvoer van ls:")
-        print(stdout.read().decode())  # Resultaten van de opdracht lezen en decoderen
+        output = stdout.read().decode()
+        video_ids = output.splitlines()
 
         errors = stderr.read().decode()
         if errors:
@@ -27,3 +29,6 @@ def get_video_ids(host, username, password):
         print(f"Fout met SSH-verbinding: {sshException}")
     except Exception as e:
         print(f"Algemene fout: {e}")
+
+    finally:
+        return video_ids
