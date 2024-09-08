@@ -23,7 +23,6 @@ def get_captions_id(video_id):
         videoId=video_id
     )
     response = request.execute()
-    # print(json.dumps(response, sort_keys=True, indent=4))
 
     subtitles = response.get("items")
     correct_sub = None
