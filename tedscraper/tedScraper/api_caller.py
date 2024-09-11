@@ -10,11 +10,18 @@ def get_api_key():
     return config.get('api_key')
 
 def get_video_captions(video_id):
-    get_captions_id(video_id)
+    caption_id = get_captions_id(video_id)
+    get_captions_by_id(caption_id)
+
 
 
 def get_captions_by_id(caption_id):
-    pass
+    youtube = build("youtube", "v3", developerKey=get_api_key())
+    request = youtube.captions().download(
+        id=caption_id
+    )
+    response = request.execute()
+    print(response)
 
 def get_captions_id(video_id):
     youtube = build("youtube", "v3", developerKey=get_api_key())
@@ -35,6 +42,7 @@ def get_captions_id(video_id):
         return None
     else:
         return correct_sub
+
 
 def get_video_metadata(video_id):
     # Bouw de YouTube API service
