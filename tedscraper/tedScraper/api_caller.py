@@ -13,8 +13,6 @@ def get_video_captions(video_id):
     caption_id = get_captions_id(video_id)
     get_captions_by_id(caption_id)
 
-
-
 def get_captions_by_id(caption_id):
     youtube = build("youtube", "v3", developerKey=get_api_key())
     request = youtube.captions().download(
@@ -46,30 +44,34 @@ def get_captions_id(video_id):
 
 def get_video_metadata(video_id):
     # Bouw de YouTube API service
-    youtube = build("youtube", "v3", developerKey= get_api_key())
+    youtube = build("youtube", "v3", developerKey=get_api_key())
 
     # Maak een request om video-informatie op te halen
     request = youtube.videos().list(
         part="snippet,statistics",
-        # Onderdeel van de video: snippet voor titel/beschrijving en statistics voor likes/views
         id=video_id  # Video ID van de gewenste video
     )
 
     # Voer de request uit
     response = request.execute()
 
-    # Haal de metadata op als de video gevonden is
+    # Controleer of er items zijn in de response
     if response["items"]:
         video_info = response["items"][0]
+        # Haal de nodige metadata op
         title = video_info["snippet"]["title"]
         description = video_info["snippet"]["description"]
         views = video_info["statistics"]["viewCount"]
-        likes = video_info["statistics"].get("likeCount", "Geen likes beschikbaar")
+        likes = video_info["statistics"].get("likeCount", None)  # Gebruik None als geen likes beschikbaar zijn
 
-        # Print de informatie
-        print(f"Title: {title}")
-        print(f"Description: {description}")
-        print(f"Views: {views}")
-        print(f"Likes: {likes}")
+        # Bouw en retourneer een nette dict met de metadata
+        return {
+            "video_id": video_id,
+            "title": title,
+            "description": description,
+            "views": int(views),
+            "likes": int(likes) if likes is not None else None  # Controleer of likes niet None is voordat je het omzet naar een int
+        }
     else:
-        print("Video niet gevonden of niet beschikbaar.")
+        # Retourneer een lege dict of een melding als de video niet gevonden is
+        return {"error": "Video niet gevonden of niet beschikbaar."}
