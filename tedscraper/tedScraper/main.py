@@ -3,10 +3,7 @@ import db_writer
 import db_reader
 import ssh_connector
 import psycopg2
-
-host = "145.97.16.170"
-username = "s1149334"
-password = "s1149334"
+import time
 
 #tijdelijk omdat server niet werkt
 video_ids = [
@@ -15,21 +12,26 @@ video_ids = [
     "kNfKCM92OWM"
 ]
 
+def update_video_data():
+    excisting_videos = db_reader.get_video_ids()
+    all_videos = ssh_connector.get_video_ids()
+    for vid in all_videos:
+        if vid in excisting_videos:
+           print(f"video id: {vid} al bestaand in db")
+        else:
+            new_vid = api_caller.get_video_info(vid)
+            db_writer.insert_video_data_into_db(new_vid)
+            print(f"added video with id: {vid} to db")
+
+
+
 def main():
+    start_time = time.time()
+
     # db_writer.drop_tables()
     db_writer.create_table()
-    # data = api_caller.get_video_info(video_ids[0])
-    # db_writer.insert_video_data_into_db(data)
+    update_video_data()
 
-    # video_ids2 = ssh_connector.get_video_ids(host, username, password)
-    # for video_id in video_ids2:
-    #     statistics = api_caller.get_video_info(video_id)
-    #     db_writer.insert_video_data_into_db(statistics)
-
-    fetched_video_ids = db_reader.get_video_ids()
-    for id in fetched_video_ids:
-        print(id)
-
-
+    print(f"Het script duurde {time.time() - start_time} seconden.")
 if __name__ == "__main__":
     main()

@@ -8,10 +8,9 @@ def get_video_ids():
     SELECT video_id FROM video_data;
     """
     cur.execute(query)
-    dirty_ids = cur.fetchall()  # List van tuples [(id1,), (id2,), ...]
+    dirty_ids = cur.fetchall()
     clean_ids = []
 
-    # Unpack de tuples en voeg de schoongemaakte video_id toe aan de lijst
     for (video_id,) in dirty_ids:
         clean_ids.append(clean_video_id(video_id))
 

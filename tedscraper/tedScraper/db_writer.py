@@ -1,4 +1,6 @@
 import psycopg2
+
+import db_reader
 from db_conn import create_connection
 
 def create_table():
@@ -65,8 +67,6 @@ def insert_video_data_into_db(video_data):
             video_data["transcript"]
         ))
         conn.commit()
-
-        print("Video metadata succesvol ingevoegd.")
     except Exception as e:
         conn.rollback()
         print(f"Fout bij het invoegen van video metadata: {e}")

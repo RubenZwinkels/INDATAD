@@ -1,6 +1,10 @@
 import paramiko
 
-def get_video_ids(host, username, password):
+host = "145.97.16.170"
+username = "s1149334"
+password = "s1149334"
+
+def get_video_ids():
     video_ids = []
 
     try:
