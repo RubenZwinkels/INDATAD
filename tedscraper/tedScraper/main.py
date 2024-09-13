@@ -23,14 +23,14 @@ def update_video_data():
             db_writer.insert_video_data_into_db(new_vid)
             print(f"added video with id: {vid} to db")
 
-
-
 def main():
     start_time = time.time()
 
     # db_writer.drop_tables()
     db_writer.create_table()
-    update_video_data()
+
+    db_reader.get_video_statistic("0G2U0R0hOCU")
+    # update_video_data()
 
     print(f"Het script duurde {time.time() - start_time} seconden.")
 if __name__ == "__main__":
