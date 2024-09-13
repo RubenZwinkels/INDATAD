@@ -55,7 +55,6 @@ def get_video_captions(video_id):
         print(f"Fout bij het ophalen van ondertitels: {e}")
         return None
 
-
 def get_video_info(video_id):
     metadata = get_video_data(video_id)
     transcript = get_video_captions(video_id)
@@ -63,3 +62,28 @@ def get_video_info(video_id):
     if "error" not in metadata:
         metadata['transcript'] = transcript
     return metadata
+
+def get_video_statistic(video_id):
+    try:
+        youtube = build("youtube", "v3", developerKey=get_api_key())
+        request = youtube.videos().list(part="snippet,statistics", id=video_id)
+        response = request.execute()
+
+        if response["items"]:
+            video_info = response["items"][0]
+            title = video_info["snippet"]["title"]
+            description = video_info["snippet"]["description"]
+            views = video_info["statistics"]["viewCount"]
+            likes = video_info["statistics"].get("likeCount", None)
+
+            return {
+                "video_id": video_id,
+                "views": views,
+                "likes": likes
+            }
+        else:
+            return {"error": "Video niet gevonden of niet beschikbaar."}
+
+    except Exception as e:
+        print(f"Fout bij het ophalen van metadata: {e}")
+        return None
