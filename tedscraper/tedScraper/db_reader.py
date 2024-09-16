@@ -1,5 +1,6 @@
 import psycopg2
 from db_conn import create_connection
+from datetime import datetime
 
 def get_video_ids():
     conn = create_connection()
@@ -40,3 +41,32 @@ def get_video_statistic(video_id):
             "current_views": None,
             "historic_views": None
         }
+
+def get_id_by_date(search_date):
+    try:
+        conn = create_connection()
+        cur = conn.cursor()
+
+        if isinstance(search_date, str):
+            search_date = datetime.strptime(search_date, "%Y-%m-%d").date()
+
+        query = """
+        SELECT id FROM date WHERE date = %s;
+        """
+        cur.execute(query, (search_date,))
+        result = cur.fetchone()
+
+        if result:
+            return result[0]
+        else:
+            return None
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
+
+    finally:
+        if cur is not None:
+            cur.close()
+        if conn is not None:
+            conn.close()

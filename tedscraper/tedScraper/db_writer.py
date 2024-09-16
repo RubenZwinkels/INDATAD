@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS popularity (
 
 CREATE TABLE IF NOT EXISTS date (
     id SERIAL PRIMARY KEY,
-    date TIMESTAMP UNIQUE DEFAULT CURRENT_DATE
+    date DATE UNIQUE DEFAULT CURRENT_DATE
 );
 
 CREATE TABLE IF NOT EXISTS video_data(
@@ -132,48 +132,34 @@ def delete_video_statistic(video_id):
     cur.close()
     conn.close()
 
-def create_current_timestamp():
+def insert_custom_date(custom_date=None):
     try:
         conn = create_connection()
         cur = conn.cursor()
-        current_timestamp = datetime.now()
 
-        query = """
-        INSERT INTO date (date)
-        VALUES (%s);
-        """
-        cur.execute(query, (current_timestamp,))
-        conn.commit()
-        print(f"Timestamp {current_timestamp} created")
-
-    except Exception as e:
-        print(f"Error: {e}")
-
-    finally:
-        if cur is not None:
-            cur.close()
-        if conn is not None:
-            conn.close()
-
-
-def insert_custom_timestamp(custom_date):
-    try:
-        conn = create_connection()
-        cur = conn.cursor()
+        if not custom_date:
+            custom_date = datetime.now().date()
 
         if isinstance(custom_date, str):
-            custom_date = datetime.strptime(custom_date, "%Y-%m-%d %H:%M:%S")
+            custom_date = datetime.strptime(custom_date, "%Y-%m-%d").date()
 
         query = """
         INSERT INTO date (date)
-        VALUES (%s);
+        VALUES (%s)
+        RETURNING id;
         """
         cur.execute(query, (custom_date,))
+
+        inserted_id = cur.fetchone()[0]
+
         conn.commit()
-        print(f"Timestamp {custom_date} created")
+        print(f"Date {custom_date} inserted with ID {inserted_id}")
+
+        return inserted_id
 
     except Exception as e:
         print(f"Error: {e}")
+        return None
 
     finally:
         if cur is not None:

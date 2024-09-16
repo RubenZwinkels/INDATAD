@@ -2,7 +2,6 @@ import api_caller
 import db_writer
 import db_reader
 import ssh_connector
-import psycopg2
 import time
 
 #tijdelijk omdat server niet werkt
@@ -13,7 +12,7 @@ video_ids = [
 ]
 def startup():
     db_writer.create_table()
-    db_writer.create_current_timestamp()
+    db_writer.insert_custom_date()
 
 def update_video_data():
     excisting_videos = db_reader.get_video_ids()
