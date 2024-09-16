@@ -4,6 +4,8 @@ import api_caller
 import db_conn
 import db_reader
 from db_conn import create_connection
+from datetime import datetime
+from psycopg2 import Error
 
 def create_table():
     conn = create_connection()
@@ -22,7 +24,7 @@ CREATE TABLE IF NOT EXISTS popularity (
 
 CREATE TABLE IF NOT EXISTS date (
     id SERIAL PRIMARY KEY,
-    date DATE UNIQUE DEFAULT CURRENT_DATE
+    date TIMESTAMP UNIQUE DEFAULT CURRENT_DATE
 );
 
 CREATE TABLE IF NOT EXISTS video_data(
@@ -35,7 +37,7 @@ CREATE TABLE IF NOT EXISTS video_data(
 
 CREATE TABLE IF NOT EXISTS statistic (
     id SERIAL PRIMARY KEY,
-    video_id VARCHAR(20),  -- Aangepast naar VARCHAR(20) om overeen te komen met video_data
+    video_id VARCHAR(20), 
     current_likes BIGINT,
     historic_likes BIGINT,
     current_views BIGINT,
@@ -129,3 +131,52 @@ def delete_video_statistic(video_id):
     conn.commit()
     cur.close()
     conn.close()
+
+def create_current_timestamp():
+    try:
+        conn = create_connection()
+        cur = conn.cursor()
+        current_timestamp = datetime.now()
+
+        query = """
+        INSERT INTO date (date)
+        VALUES (%s);
+        """
+        cur.execute(query, (current_timestamp,))
+        conn.commit()
+        print(f"Timestamp {current_timestamp} created")
+
+    except Exception as e:
+        print(f"Error: {e}")
+
+    finally:
+        if cur is not None:
+            cur.close()
+        if conn is not None:
+            conn.close()
+
+
+def insert_custom_timestamp(custom_date):
+    try:
+        conn = create_connection()
+        cur = conn.cursor()
+
+        if isinstance(custom_date, str):
+            custom_date = datetime.strptime(custom_date, "%Y-%m-%d %H:%M:%S")
+
+        query = """
+        INSERT INTO date (date)
+        VALUES (%s);
+        """
+        cur.execute(query, (custom_date,))
+        conn.commit()
+        print(f"Timestamp {custom_date} created")
+
+    except Exception as e:
+        print(f"Error: {e}")
+
+    finally:
+        if cur is not None:
+            cur.close()
+        if conn is not None:
+            conn.close()

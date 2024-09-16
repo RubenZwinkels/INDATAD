@@ -11,28 +11,26 @@ video_ids = [
     "7CBfCW67xT8&rco=1",
     "kNfKCM92OWM"
 ]
+def startup():
+    db_writer.create_table()
+    db_writer.create_current_timestamp()
 
 def update_video_data():
     excisting_videos = db_reader.get_video_ids()
     all_videos = ssh_connector.get_video_ids()
     for vid in all_videos:
         if vid in excisting_videos:
-           # print(f"video id: {vid} al bestaand in db")
             pass
         else:
             new_vid = api_caller.get_video_info(vid)
             db_writer.insert_video_data_into_db(new_vid)
-            # print(f"added video with id: {vid} to db")
-        # print(f"updating statistics with id: {vid}")
         db_writer.update_video_statistic(vid)
     print("alle video statistieken geupdate")
+
 def main():
     start_time = time.time()
 
-    # db_writer.drop_tables()
-    db_writer.create_table()
-
-    # db_reader.get_video_statistic("0G2U0R0hOCU")
+    startup()
     update_video_data()
 
 
