@@ -22,15 +22,19 @@ def update_video_data():
             new_vid = api_caller.get_video_info(vid)
             db_writer.insert_video_data_into_db(new_vid)
             print(f"added video with id: {vid} to db")
-
+        print(f"updating statistics with id: {vid}")
+        db_writer.update_video_statistic(vid)
 def main():
     start_time = time.time()
 
     # db_writer.drop_tables()
     db_writer.create_table()
 
-    db_reader.get_video_statistic("0G2U0R0hOCU")
-    # update_video_data()
+    # db_reader.get_video_statistic("0G2U0R0hOCU")
+    update_video_data()
+
+
+    # db_writer.update_video_statistic("0G2U0R0hOCU")
 
     print(f"Het script duurde {time.time() - start_time} seconden.")
 if __name__ == "__main__":

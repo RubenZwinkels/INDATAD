@@ -1,5 +1,7 @@
 import psycopg2
 
+import api_caller
+import db_conn
 import db_reader
 from db_conn import create_connection
 
@@ -89,3 +91,41 @@ def drop_tables():
         print(f"fout bij het droppen van alle tables: {e}")
     finally:
         cur.close()
+
+def update_video_statistic(video_id):
+    conn = create_connection()
+    cur = conn.cursor()
+
+    old_video_statistic = db_reader.get_video_statistic(video_id)
+    new_video_statistic = api_caller.get_video_statistic(video_id)
+    delete_video_statistic(video_id)
+    query = """
+    INSERT INTO statistic
+    (video_id, current_likes, historic_likes, current_views, historic_views)
+    VALUES (%s, %s, %s, %s, %s)
+    """
+
+    params = (
+        video_id,
+        new_video_statistic["likes"],
+        old_video_statistic["current_likes"],
+        new_video_statistic["views"],
+        old_video_statistic["current_views"]
+    )
+
+
+    cur.execute(query, params)
+    conn.commit()
+    cur.close()
+    conn.close()
+
+def delete_video_statistic(video_id):
+    conn = create_connection()
+    cur = conn.cursor()
+    query = f"""
+    DELETE FROM statistic WHERE video_id = '{video_id}';
+    """
+    cur.execute(query)
+    conn.commit()
+    cur.close()
+    conn.close()
