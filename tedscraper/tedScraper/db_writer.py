@@ -1,7 +1,6 @@
 import psycopg2
 
 import api_caller
-import db_conn
 import db_reader
 from db_conn import create_connection
 from datetime import datetime
@@ -32,6 +31,8 @@ CREATE TABLE IF NOT EXISTS video_data(
     title VARCHAR(255),
     transcription VARCHAR,
     sentiment INT,
+    date INT,
+    CONSTRAINT fk_date FOREIGN KEY (date) REFERENCES date(id),
     CONSTRAINT fk_sentiment FOREIGN KEY (sentiment) REFERENCES sentiment(id)
 );
 
@@ -58,17 +59,17 @@ def insert_video_data_into_db(video_data):
     cur = conn.cursor()
 
     insert_query = """
-        INSERT INTO video_data (video_id, title, transcription)
-        VALUES (%s, %s, %s)
+        INSERT INTO video_data (video_id, title, transcription, date)
+        VALUES (%s, %s, %s, %s)
         ON CONFLICT (video_id) DO NOTHING;
         """
 
     try:
-        # Voer de query uit met data uit de video_metadata dictionary
         cur.execute(insert_query, (
             video_data["video_id"],
             video_data["title"],
-            video_data["transcript"]
+            video_data["transcript"],
+            get_date_id_by_date(video_data["publishedAt"])
         ))
         conn.commit()
     except Exception as e:
@@ -95,31 +96,36 @@ def drop_tables():
         cur.close()
 
 def update_video_statistic(video_id):
-    conn = create_connection()
-    cur = conn.cursor()
+    try:
+        conn = create_connection()
+        cur = conn.cursor()
 
-    old_video_statistic = db_reader.get_video_statistic(video_id)
-    new_video_statistic = api_caller.get_video_statistic(video_id)
-    delete_video_statistic(video_id)
-    query = """
-    INSERT INTO statistic
-    (video_id, current_likes, historic_likes, current_views, historic_views)
-    VALUES (%s, %s, %s, %s, %s)
-    """
+        old_video_statistic = db_reader.get_video_statistic(video_id)
+        new_video_statistic = api_caller.get_video_statistic(video_id)
+        delete_video_statistic(video_id)
+        query = """
+        INSERT INTO statistic
+        (video_id, current_likes, historic_likes, current_views, historic_views, date)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """
 
-    params = (
-        video_id,
-        new_video_statistic["likes"],
-        old_video_statistic["current_likes"],
-        new_video_statistic["views"],
-        old_video_statistic["current_views"]
-    )
+        params = (
+            video_id,
+            new_video_statistic["likes"],
+            old_video_statistic["current_likes"],
+            new_video_statistic["views"],
+            old_video_statistic["current_views"],
+            get_date_id_by_date()
+        )
+        cur.execute(query, params)
+        conn.commit()
 
+    except:
+        print(f"fout met video id: {video_id}")
+    finally:
 
-    cur.execute(query, params)
-    conn.commit()
-    cur.close()
-    conn.close()
+        cur.close()
+        conn.close()
 
 def delete_video_statistic(video_id):
     conn = create_connection()
@@ -141,7 +147,10 @@ def insert_custom_date(custom_date=None):
             custom_date = datetime.now().date()
 
         if isinstance(custom_date, str):
-            custom_date = datetime.strptime(custom_date, "%Y-%m-%d").date()
+            # Verwijder de 'Z' aan het einde van de tijdstring
+            custom_date = custom_date.rstrip('Z')
+            # Parse de datumstring zonder 'Z'
+            custom_date = datetime.strptime(custom_date, "%Y-%m-%dT%H:%M:%S").date()
 
         query = """
         INSERT INTO date (date)
@@ -158,7 +167,7 @@ def insert_custom_date(custom_date=None):
         return inserted_id
 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"datum al bestaand in db")
         return None
 
     finally:
@@ -166,3 +175,15 @@ def insert_custom_date(custom_date=None):
             cur.close()
         if conn is not None:
             conn.close()
+
+
+def get_date_id_by_date(date=None):
+    if date is None:
+        date = datetime.now().date()
+    excisting_id = db_reader.get_id_by_date(date)
+
+    if excisting_id is None:
+        new_id = insert_custom_date(date)
+        return new_id
+    else:
+        return excisting_id

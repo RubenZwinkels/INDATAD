@@ -62,7 +62,7 @@ def get_id_by_date(search_date):
             return None
 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error in db_reader.get_id_by_date: {e}")
         return None
 
     finally:

@@ -29,12 +29,12 @@ def get_video_data(video_id):
             video_info = response["items"][0]
             title = video_info["snippet"]["title"]
             description = video_info["snippet"]["description"]
-            views = video_info["statistics"]["viewCount"]
-            likes = video_info["statistics"].get("likeCount", None)
+            publishedAt = video_info["snippet"]["publishedAt"]
 
             return {
                 "video_id": video_id,
-                "title": title
+                "title": title,
+                "publishedAt": publishedAt
             }
         else:
             return {"error": "Video niet gevonden of niet beschikbaar."}
