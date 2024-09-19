@@ -1,0 +1,3 @@
+services:
+  python-container:
+    image: s1149334/rubensfantastischeding:latest
