@@ -4,12 +4,6 @@ import db_reader
 import ssh_connector
 import time
 
-#tijdelijk omdat server niet werkt
-video_ids = [
-    "-reddWy7dig",
-    "7CBfCW67xT8&rco=1",
-    "kNfKCM92OWM"
-]
 def startup():
     db_writer.create_table()
     db_writer.insert_custom_date()
@@ -35,7 +29,6 @@ def main():
     start_time = time.time()
     startup()
     update_video_data()
-
     print(f"Het script duurde {time.time() - start_time} seconden.")
 if __name__ == "__main__":
     main()

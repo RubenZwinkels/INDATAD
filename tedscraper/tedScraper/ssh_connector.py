@@ -1,10 +1,12 @@
 import paramiko
-
-host = "145.97.16.170"
-username = "s1149334"
-password = "s1149334"
+import os
+from dotenv import load_dotenv
 
 def get_video_ids():
+    load_dotenv()
+    host = os.environ['VIDEO_SERVER_HOST']
+    username = os.environ['VIDEO_SERVER_USERNAME']
+    password = os.environ['VIDEO_SERVER_PASSWORD']
     video_ids = []
 
     try:

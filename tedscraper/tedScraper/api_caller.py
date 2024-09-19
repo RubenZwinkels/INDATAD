@@ -3,13 +3,13 @@ from googleapiclient.discovery import build
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api.formatters import TextFormatter
 import re
+from dotenv import load_dotenv
+import os
 
 
 def get_api_key():
-    filename = "credentials.json"
-    with open(filename, 'r') as file:
-        config = json.load(file)
-    return config.get('api_key')
+    load_dotenv()
+    return os.environ['YOUTUBE_API_KEY']
 
 
 def clean_transcript(dirty_transcript):
