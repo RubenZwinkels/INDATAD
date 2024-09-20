@@ -1,5 +1,5 @@
 services:
   python-container:
     image: s1149334/tedscraper:latest
-    volumes:
-      - ./env:/app/.env:ro
+    env_file:
+      - .env
