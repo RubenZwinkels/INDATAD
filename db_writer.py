@@ -1,7 +1,8 @@
 import psycopg2
-
 import api_caller
 import db_reader
+import os
+from dotenv import load_dotenv
 from db_conn import create_connection
 from datetime import datetime
 from psycopg2 import Error
@@ -53,7 +54,8 @@ CREATE TABLE IF NOT EXISTS statistic (
 CREATE TABLE IF NOT EXISTS deploy (
     id SERIAL PRIMARY KEY,
     time TIMESTAMP DEFAULT NOW(),
-    script_duration_in_s INTEGER
+    script_duration_in_s INTEGER,
+    host VARCHAR
 );
     """
     cur.execute(query)
@@ -195,13 +197,19 @@ def get_date_id_by_date(date=None):
         return excisting_id
 
 def insert_deploy(duration):
+    load_dotenv()
+    host = os.environ['HOST']
     rounded_duration = round(duration, 0)
+
     conn = create_connection()
     cur = conn.cursor()
     query = f"""
     INSERT INTO deploy
-    (script_duration_in_s, time)
-    VALUES ({rounded_duration}, NOW() AT TIME ZONE 'Europe/Amsterdam');
+    (script_duration_in_s, time, host)
+    VALUES ({rounded_duration},
+    NOW() AT TIME ZONE 'Europe/Amsterdam',
+    '{host}'
+    );
     """
     cur.execute(query)
     conn.commit()
