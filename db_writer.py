@@ -49,6 +49,12 @@ CREATE TABLE IF NOT EXISTS statistic (
     CONSTRAINT fk_popularity FOREIGN KEY (popularity) REFERENCES popularity(id),
     CONSTRAINT fk_date FOREIGN KEY (date) REFERENCES date(id)
 );
+
+CREATE TABLE IF NOT EXISTS deploy (
+    id SERIAL PRIMARY KEY,
+    time TIMESTAMP DEFAULT NOW(),
+    script_duration_in_s INTEGER
+);
     """
     cur.execute(query)
     conn.commit()
@@ -187,3 +193,17 @@ def get_date_id_by_date(date=None):
         return new_id
     else:
         return excisting_id
+
+def insert_deploy(duration):
+    rounded_duration = round(duration, 0)
+    conn = create_connection()
+    cur = conn.cursor()
+    query = f"""
+    INSERT INTO deploy
+    (script_duration_in_s, time)
+    VALUES ({rounded_duration}, NOW() AT TIME ZONE 'Europe/Amsterdam');
+    """
+    cur.execute(query)
+    conn.commit()
+    cur.close()
+    conn.close()
