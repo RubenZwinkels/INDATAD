@@ -30,11 +30,15 @@ def get_video_data(video_id):
             title = video_info["snippet"]["title"]
             description = video_info["snippet"]["description"]
             publishedAt = video_info["snippet"]["publishedAt"]
+            tags = video_info["snippet"]["tags"]
+            category_id = video_info["snippet"]["categoryId"]
 
             return {
                 "video_id": video_id,
                 "title": title,
-                "publishedAt": publishedAt
+                "publishedAt": publishedAt,
+                "tags": tags,
+                "category_id": category_id
             }
         else:
             return {"error": "Video niet gevonden of niet beschikbaar."}
