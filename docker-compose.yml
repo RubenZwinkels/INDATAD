@@ -4,4 +4,4 @@ services:
     env_file:
       - .env
     volumes:
-      - /ik/heb/geen/volumes:ro
+      - /ik/heb:/geen/volumes:ro
