@@ -85,11 +85,13 @@ def insert_video_data_into_db(video_data):
         """
 
     try:
+        published_at_date = video_data["publishedAt"]
+        clean_date = datetime.strptime(published_at_date, "%Y-%m-%dT%H:%M:%SZ").date()
         cur.execute(insert_query, (
             video_data["video_id"],
             video_data["title"],
             video_data["transcript"],
-            get_date_id_by_date(video_data["publishedAt"]),
+            get_date_id_by_date(clean_date),
             video_data["category_id"]
         ))
         conn.commit()
@@ -222,7 +224,6 @@ def insert_video_tags(video_id, tags):
     cur = conn.cursor()
 
     try:
-        # Stap 1: Voeg de tags toe aan de `tags`-tabel (indien ze nog niet bestaan)
         insert_tag_query = """
         INSERT INTO tags (name)
         VALUES (%s)
