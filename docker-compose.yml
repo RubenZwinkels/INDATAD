@@ -3,5 +3,3 @@ services:
     image: s1149334/tedscraper:latest
     env_file:
       - .env
-    volumes:
-      - /ik/heb:/geen/volumes:ro

@@ -1,5 +1,4 @@
-from data_collection import api_caller, db_reader, db_writer
-import ssh_connector
+from data_collection import api_caller, db_reader, db_writer, ssh_connector
 import time
 
 def startup():
