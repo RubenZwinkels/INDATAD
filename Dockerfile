@@ -5,6 +5,7 @@ COPY . /app
 EXPOSE 8080
 ENV NAME=World
 
+RUN pip install --no-cache-dir -r requirements.txt && pip check
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
