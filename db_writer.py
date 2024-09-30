@@ -103,22 +103,22 @@ def insert_video_data_into_db(video_data):
         cur.close()
 
 
-def drop_tables():
-    conn = create_connection()
-    cur = conn.cursor()
-
-    query = """
-     DROP TABLE IF EXISTS statistic, video_data, sentiment, popularity, date CASCADE;
-    """
-
-    try:
-        cur.execute(query)
-        conn.commit()
-    except Exception as e:
-        conn.rollback()
-        print(f"fout bij het droppen van alle tables: {e}")
-    finally:
-        cur.close()
+# def drop_tables():
+#     conn = create_connection()
+#     cur = conn.cursor()
+#
+#     query = """
+#      DROP TABLE IF EXISTS statistic, video_data, sentiment, popularity, date CASCADE;
+#     """
+#
+#     try:
+#         cur.execute(query)
+#         conn.commit()
+#     except Exception as e:
+#         conn.rollback()
+#         print(f"fout bij het droppen van alle tables: {e}")
+#     finally:
+#         cur.close()
 
 
 def update_video_statistic(video_id):
@@ -146,6 +146,7 @@ def update_video_statistic(video_id):
     except Exception as e:
         print(f"Fout met video id: {video_id}: {e}")
     finally:
+        conn.rollback()
         cur.close()
         conn.close()
 
@@ -177,6 +178,7 @@ def insert_custom_date(custom_date=None):
         return inserted_id
 
     except Exception as e:
+        conn.rollback()
         print(f"Datum al bestaand in db: {e}")
         return None
 

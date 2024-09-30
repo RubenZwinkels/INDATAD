@@ -6,7 +6,7 @@ import time
 
 def startup():
     db_writer.create_table()
-    db_writer.insert_custom_date()
+    # db_writer.insert_custom_date()
 
 def update_video_data():
     excisting_videos = db_reader.get_video_ids()
