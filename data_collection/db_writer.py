@@ -1,9 +1,7 @@
-import psycopg2
-import api_caller
-import db_reader
+from data_collection import api_caller, db_reader
 import os
 from dotenv import load_dotenv
-from db_conn import create_connection
+from data_collection.db_conn import create_connection
 from datetime import datetime
 
 def create_table():

@@ -1,6 +1,4 @@
-import api_caller
-import db_writer
-import db_reader
+from data_collection import api_caller, db_reader, db_writer
 import ssh_connector
 import time
 

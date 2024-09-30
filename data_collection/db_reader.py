@@ -1,5 +1,4 @@
-import psycopg2
-from db_conn import create_connection
+from data_collection.db_conn import create_connection
 from datetime import datetime
 
 def get_video_ids():
