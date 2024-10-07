@@ -22,26 +22,37 @@ def clean_transcript(dirty_transcript):
 def get_video_data(video_id):
     try:
         youtube = build("youtube", "v3", developerKey=get_api_key())
-        request = youtube.videos().list(part="snippet,statistics", id=video_id)
+        request = youtube.videos().list(part="snippet,statistics,contentDetails", id=video_id)
         response = request.execute()
 
         if response["items"]:
             video_info = response["items"][0]
-            title = video_info["snippet"]["title"]
-            description = video_info["snippet"]["description"]
-            publishedAt = video_info["snippet"]["publishedAt"]
-            tags = video_info["snippet"]["tags"]
-            category_id = video_info["snippet"]["categoryId"]
 
-            return {
+            title = video_info["snippet"]["title"] if "title" in video_info["snippet"] else None
+            description = video_info["snippet"]["description"] if "description" in video_info["snippet"] else None
+            publishedAt = video_info["snippet"]["publishedAt"] if "publishedAt" in video_info["snippet"] else None
+            tags = video_info["snippet"]["tags"] if "tags" in video_info["snippet"] else None
+            category_id = video_info["snippet"]["categoryId"] if "categoryId" in video_info["snippet"] else None
+
+            comment_count = video_info["statistics"]["commentCount"] if "commentCount" in video_info[
+                "statistics"] else None
+            duration = video_info["contentDetails"]["duration"] if "duration" in video_info["contentDetails"] else None
+
+            video_data = {
                 "video_id": video_id,
                 "title": title,
+                "description": description,
                 "publishedAt": publishedAt,
                 "tags": tags,
-                "category_id": category_id
+                "category_id": category_id,
+                "comment_count": comment_count,
+                "duration": duration
             }
+
+            return video_data
+
         else:
-            return {"error": "Video niet gevonden of niet beschikbaar."}
+            return None
 
     except Exception as e:
         print(f"Fout bij het ophalen van metadata: {e}")
