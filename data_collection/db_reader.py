@@ -19,27 +19,79 @@ def get_video_ids():
 def clean_video_id(video_id):
     return video_id.strip("',()")
 
-def get_video_statistic(video_id):
+def get_recent_video_statistic(video_id):
     try:
         conn = create_connection()
         cur = conn.cursor()
         query = f"""
-        SELECT current_likes, historic_likes, current_views, historic_views FROM statistic WHERE video_id = '{video_id}'
+        SELECT
+            vd.video_id,
+            vd.title,
+            vd.transcription,
+            vd.category_id,
+            s.likes,
+            s.views,
+            d.date,
+            se.rating AS sentiment_rating,
+            ARRAY_AGG(t.name) AS tags
+        FROM
+            video_data vd
+        JOIN
+            statistic s ON vd.video_id = s.video_id
+        LEFT JOIN
+            date d ON s.date = d.id
+        LEFT JOIN
+            sentiment se ON vd.sentiment = se.id
+        LEFT JOIN
+            video_tags vt ON vd.video_id = vt.video_id
+        LEFT JOIN
+            tags t ON vt.tag_id = t.id
+        WHERE
+            vd.video_id = '04PmEJaYKd0'
+        GROUP BY
+            vd.video_id, vd.title, vd.transcription, vd.category_id, s.likes, s.views, d.date, se.rating
+        ORDER BY
+            d.date DESC
+        LIMIT 1;
         """
         cur.execute(query)
-        data = cur.fetchall()
+        data = cur.fetchone()
 
-        columns = ['current_likes', 'historic_likes', 'current_views', 'historic_views']
-        data_dict = dict(zip(columns, data[0]))
+        if data is None:
+            raise ValueError(f"Geen statistieken voor video met id: {video_id} gevonden")
+
+        # Kolommen die overeenkomen met de geretourneerde data
+        columns = ['video_id', 'title', 'transcription', 'category_id', 'likes', 'views', 'date', 'sentiment_rating', 'tags']
+
+        # Maak een dictionary van de resultaten
+        data_dict = dict(zip(columns, data))
+
+        print(data_dict)
         return data_dict
-    except:
-        print(f"geen statistieken voor video met id: {video_id} gevonden")
+
+    except Exception as e:
+        print(e)
+        return None
+
+    except Exception as e:
+        print(e)
         return {
-            "current_likes" : None,
-            "historic_likes": None,
+            "video_id": video_id,
+            "title": None,
+            "transcription": None,
+            "category_id": None,
+            "current_likes": None,
             "current_views": None,
-            "historic_views": None
+            "popularity_rating": None,
+            "date": None,
+            "sentiment_rating": None,
+            "tags": []
         }
+
+    finally:
+        if conn:
+            cur.close()
+            conn.close()
 
 def get_id_by_date(search_date):
     try:
