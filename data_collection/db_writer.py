@@ -40,6 +40,7 @@ def create_table():
         video_id VARCHAR(20), 
         likes BIGINT,
         views BIGINT,
+        comment_count BIGINT,
         popularity INT,
         date INT,
         CONSTRAINT fk_video FOREIGN KEY (video_id) REFERENCES video_data(video_id),
@@ -100,43 +101,25 @@ def insert_video_data_into_db(video_data):
     finally:
         cur.close()
 
-
-# def drop_tables():
-#     conn = create_connection()
-#     cur = conn.cursor()
-#
-#     query = """
-#      DROP TABLE IF EXISTS statistic, video_data, sentiment, popularity, date CASCADE;
-#     """
-#
-#     try:
-#         cur.execute(query)
-#         conn.commit()
-#     except Exception as e:
-#         conn.rollback()
-#         print(f"fout bij het droppen van alle tables: {e}")
-#     finally:
-#         cur.close()
-
-
 def update_video_statistic(video_id):
     try:
         conn = create_connection()
         cur = conn.cursor()
 
         new_video_statistic = api_caller.get_video_statistic(video_id)
-
+        print(f"comment_count: {new_video_statistic["comment_count"]}")
         query = """
         INSERT INTO statistic
-        (video_id, likes, views, date)
-        VALUES (%s, %s, %s, %s)
+        (video_id, likes, views, date, comment_count)
+        VALUES (%s, %s, %s, %s, %s)
         """
 
         params = (
             video_id,
             new_video_statistic["likes"],
             new_video_statistic["views"],
-            get_date_id_by_date()
+            get_date_id_by_date(),
+            new_video_statistic["comment_count"]
         )
         cur.execute(query, params)
         conn.commit()

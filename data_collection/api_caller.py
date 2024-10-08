@@ -90,11 +90,13 @@ def get_video_statistic(video_id):
             description = video_info["snippet"]["description"]
             views = video_info["statistics"]["viewCount"]
             likes = video_info["statistics"].get("likeCount", None)
+            comment_count = video_info["statistics"]["commentCount"]
 
             return {
                 "video_id": video_id,
                 "views": views,
-                "likes": likes
+                "likes": likes,
+                "comment_count": comment_count
             }
         else:
             return {"error": "Video niet gevonden of niet beschikbaar."}
