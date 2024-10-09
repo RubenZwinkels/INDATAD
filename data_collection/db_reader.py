@@ -64,7 +64,6 @@ def get_recent_video_statistic(video_id):
         columns = ['video_id', 'title', 'transcription', 'category_id', 'likes', 'views', 'comment_count', 'date', 'sentiment_rating', 'tags']
         data_dict = dict(zip(columns, data))
 
-        print(data_dict)
         return data_dict
 
     except Exception as e:
