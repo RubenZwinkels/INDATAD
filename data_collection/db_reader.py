@@ -40,7 +40,7 @@ def get_recent_video_statistic(video_id):
         JOIN
             statistic s ON vd.video_id = s.video_id
         LEFT JOIN
-            date d ON s.date = d.id
+            date d ON vd.date = d.id
         LEFT JOIN
             sentiment se ON vd.sentiment = se.id
         LEFT JOIN
