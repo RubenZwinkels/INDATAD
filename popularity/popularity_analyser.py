@@ -7,8 +7,8 @@ from sklearn.preprocessing import StandardScaler
 def determine_popularity(video_data):
     df = convert_to_dataframe(video_data)
     df = scale_dataframe(df)
-    assign_label(df)
-
+    label = assign_label(df)
+    return label
 
 def load_scaler():
     try:
@@ -76,4 +76,3 @@ def scale_dataframe(df):
 def assign_label(df):
     model = load_model()
     label = model.predict(df)
-    print(label[0])
