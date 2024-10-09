@@ -2,11 +2,12 @@ import joblib
 import pandas as pd
 import numpy as np
 import datetime
-
+from sklearn.preprocessing import StandardScaler
 
 def determine_popularity(video_data):
     df = convert_to_dataframe(video_data)
-    print(df.info())
+    df = scale_dataframe(df)
+    assign_label(df)
 
 
 def load_scaler():
@@ -62,5 +63,17 @@ def convert_to_dataframe(data_dict):
     }
 
     df = pd.DataFrame(formatted_data)
-    print(df.head())
     return df
+
+
+def scale_dataframe(df):
+    scaler = load_scaler()
+    columns = ["views", "likes", "comment_count", "engagement_rate", "views_over_time"]
+    df[columns] = scaler.transform(df[columns])
+
+    return df
+
+def assign_label(df):
+    model = load_model()
+    label = model.predict(df)
+    print(label[0])
