@@ -33,6 +33,7 @@ def get_recent_video_statistic(video_id):
             s.views,
             d.date,
             se.rating AS sentiment_rating,
+            S.comment_count,
             ARRAY_AGG(t.name) AS tags
         FROM
             video_data vd
@@ -61,7 +62,7 @@ def get_recent_video_statistic(video_id):
             raise ValueError(f"Geen statistieken voor video met id: {video_id} gevonden")
 
         # Kolommen die overeenkomen met de geretourneerde data
-        columns = ['video_id', 'title', 'transcription', 'category_id', 'likes', 'views', 'date', 'sentiment_rating', 'tags']
+        columns = ['video_id', 'title', 'transcription', 'category_id', 'likes', 'views', 'date', 'sentiment_rating', 'tags', 'comment_count']
 
         # Maak een dictionary van de resultaten
         data_dict = dict(zip(columns, data))
