@@ -31,9 +31,9 @@ def get_recent_video_statistic(video_id):
             vd.category_id,
             s.likes,
             s.views,
+            s.comment_count,
             d.date,
             se.rating AS sentiment_rating,
-            S.comment_count,
             ARRAY_AGG(t.name) AS tags
         FROM
             video_data vd
@@ -48,9 +48,9 @@ def get_recent_video_statistic(video_id):
         LEFT JOIN
             tags t ON vt.tag_id = t.id
         WHERE
-            vd.video_id = '04PmEJaYKd0'
+            vd.video_id = '{video_id}'
         GROUP BY
-            vd.video_id, vd.title, vd.transcription, vd.category_id, s.likes, s.views, d.date, se.rating
+            vd.video_id, vd.title, vd.transcription, vd.category_id, s.likes, s.views, s.comment_count, d.date, se.rating
         ORDER BY
             d.date DESC
         LIMIT 1;
@@ -61,10 +61,7 @@ def get_recent_video_statistic(video_id):
         if data is None:
             raise ValueError(f"Geen statistieken voor video met id: {video_id} gevonden")
 
-        # Kolommen die overeenkomen met de geretourneerde data
-        columns = ['video_id', 'title', 'transcription', 'category_id', 'likes', 'views', 'date', 'sentiment_rating', 'tags', 'comment_count']
-
-        # Maak een dictionary van de resultaten
+        columns = ['video_id', 'title', 'transcription', 'category_id', 'likes', 'views', 'comment_count', 'date', 'sentiment_rating', 'tags']
         data_dict = dict(zip(columns, data))
 
         print(data_dict)
@@ -74,26 +71,10 @@ def get_recent_video_statistic(video_id):
         print(e)
         return None
 
-    except Exception as e:
-        print(e)
-        return {
-            "video_id": video_id,
-            "title": None,
-            "transcription": None,
-            "category_id": None,
-            "current_likes": None,
-            "current_views": None,
-            "popularity_rating": None,
-            "date": None,
-            "sentiment_rating": None,
-            "tags": []
-        }
-
     finally:
         if conn:
             cur.close()
             conn.close()
-
 def get_id_by_date(search_date):
     try:
         conn = create_connection()
