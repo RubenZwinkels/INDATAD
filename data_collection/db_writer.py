@@ -14,11 +14,6 @@ def create_table():
         rating DOUBLE PRECISION
     );
 
-    CREATE TABLE IF NOT EXISTS popularity (
-        id SERIAL PRIMARY KEY,
-        rating DOUBLE PRECISION
-    );
-
     CREATE TABLE IF NOT EXISTS date (
         id SERIAL PRIMARY KEY,
         date DATE UNIQUE DEFAULT CURRENT_DATE
@@ -44,7 +39,6 @@ def create_table():
         popularity INT,
         date INT,
         CONSTRAINT fk_video FOREIGN KEY (video_id) REFERENCES video_data(video_id),
-        CONSTRAINT fk_popularity FOREIGN KEY (popularity) REFERENCES popularity(id),
         CONSTRAINT fk_date FOREIGN KEY (date) REFERENCES date(id)
     );
 
@@ -107,7 +101,9 @@ def update_video_statistic(video_id):
         cur = conn.cursor()
 
         new_video_statistic = api_caller.get_video_statistic(video_id)
-        print(f"comment_count: {new_video_statistic["comment_count"]}")
+
+        #popularity bepalen
+
         query = """
         INSERT INTO statistic
         (video_id, likes, views, date, comment_count)
