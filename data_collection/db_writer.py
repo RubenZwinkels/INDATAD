@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from data_collection.db_conn import create_connection
 from datetime import datetime
+from popularity import popularity_analyser
 
 def create_table():
     conn = create_connection()
@@ -36,7 +37,7 @@ def create_table():
         likes BIGINT,
         views BIGINT,
         comment_count BIGINT,
-        popularity INT,
+        popularity VARCHAR,
         date INT,
         CONSTRAINT fk_video FOREIGN KEY (video_id) REFERENCES video_data(video_id),
         CONSTRAINT fk_date FOREIGN KEY (date) REFERENCES date(id)
@@ -96,14 +97,14 @@ def insert_video_data_into_db(video_data):
         cur.close()
 
 def update_video_statistic(video_id):
+    new_video_statistic = api_caller.get_video_statistic(video_id)
+    # popularity bepalen
+    popularity_label = popularity_analyser.determine_popularity(new_video_statistic)
+    print(f"label: {popularity_label}")
+
     try:
         conn = create_connection()
         cur = conn.cursor()
-
-        new_video_statistic = api_caller.get_video_statistic(video_id)
-
-        #popularity bepalen
-
         query = """
         INSERT INTO statistic
         (video_id, likes, views, date, comment_count)
@@ -122,8 +123,8 @@ def update_video_statistic(video_id):
 
     except Exception as e:
         print(f"Fout met video id: {video_id}: {e}")
-    finally:
         conn.rollback()
+    finally:
         cur.close()
         conn.close()
 
@@ -243,3 +244,29 @@ def insert_video_tags(video_id, tags):
     finally:
         cur.close()
         conn.close()
+
+def insert_popularity(video_data, date_id):
+    print(f"video data in insert pop: {video_data}")
+    pop_rating = popularity_analyser.determine_popularity(video_data)
+    if pop_rating == 1:
+        pop_label = "populular"
+    else:
+        pop_rating = "unpopular"
+    query = f"""
+    UPDATE statistic
+    SET popularity = {pop_label}
+    WHERE video_id = {video_data["video_id"]}
+    AND date = {date_id}
+    """
+    try:
+        conn = create_connection()
+        cur = conn.cursor()
+        cur.execute(query)
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        print(f"error bij insert_popularity: {e}")
+    finally:
+        cur.close()
+        conn.close()
+
