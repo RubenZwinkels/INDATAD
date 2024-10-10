@@ -23,24 +23,36 @@ def get_recent_video_statistic(video_id):
     try:
         conn = create_connection()
         cur = conn.cursor()
+
         query = f"""
         SELECT
             vd.video_id,
             vd.title,
             vd.transcription,
             vd.category_id,
-            s.likes,
-            s.views,
-            s.comment_count,
-            d.date,
+            latest_stat.likes,
+            latest_stat.views,
+            latest_stat.comment_count,
+            vd_upload_date.date AS upload_date,
+            latest_stat.statistic_date AS latest_statistic_date,
             se.rating AS sentiment_rating,
             ARRAY_AGG(t.name) AS tags
         FROM
             video_data vd
-        JOIN
-            statistic s ON vd.video_id = s.video_id
+        JOIN (
+            SELECT
+                s.video_id,
+                s.likes,
+                s.views,
+                s.comment_count,
+                MAX(s.date) AS statistic_date
+            FROM
+                statistic s
+            GROUP BY
+                s.video_id, s.likes, s.views, s.comment_count
+        ) AS latest_stat ON vd.video_id = latest_stat.video_id
         LEFT JOIN
-            date d ON vd.date = d.id
+            date vd_upload_date ON vd.date = vd_upload_date.id
         LEFT JOIN
             sentiment se ON vd.sentiment = se.id
         LEFT JOIN
@@ -50,11 +62,12 @@ def get_recent_video_statistic(video_id):
         WHERE
             vd.video_id = '{video_id}'
         GROUP BY
-            vd.video_id, vd.title, vd.transcription, vd.category_id, s.likes, s.views, s.comment_count, d.date, se.rating
+            vd.video_id, vd.title, vd.transcription, vd.category_id, latest_stat.likes, latest_stat.views, latest_stat.comment_count, vd_upload_date.date, latest_stat.statistic_date, se.rating
         ORDER BY
-            d.date DESC
+            latest_stat.statistic_date DESC
         LIMIT 1;
         """
+
         cur.execute(query)
         data = cur.fetchone()
 
