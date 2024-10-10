@@ -4,32 +4,54 @@ import numpy as np
 import datetime
 from sklearn.preprocessing import StandardScaler
 
+
 def determine_popularity(video_data):
+    # Controleer of belangrijke velden aanwezig zijn
+    if video_data["likes"] is None or video_data["comment_count"] is None or video_data['date'] is None:
+        print("determine_popularity: likes of comments niet beschikbaar dus automatisch unpopular")
+        return 0
+
+    # Zet de data om naar een DataFrame en schaal deze
     df = convert_to_dataframe(video_data)
     df = scale_dataframe(df)
+
+    # Label bepalen met het model
     label = assign_label(df)
+
+    if label is None:
+        print("determine_popularity: geen label kunnen toewijzen")
+        return 0
+
+    print(f"determine_popularity - label: {label}")
     return label
+
 
 def load_scaler():
     try:
         # Voor wanneer deze functie vanuit deze file wordt aangeroepen
         scaler = joblib.load('scaler.save')
-    except(FileNotFoundError):
-        # Voor wanneer deze functie vanuit de main wordt aangeroepen
-        scaler = joblib.load('./popularity/scaler.save')
-    finally:
-        return scaler
+    except FileNotFoundError:
+        try:
+            # Voor wanneer deze functie vanuit de main wordt aangeroepen
+            scaler = joblib.load('./popularity/scaler.save')
+        except FileNotFoundError:
+            print("Error: Scaler file niet gevonden.")
+            return None
+    return scaler
 
 
 def load_model():
     try:
         # Voor wanneer deze functie vanuit deze file wordt aangeroepen
         model = joblib.load('popularity_model.pkl')
-    except(FileNotFoundError):
-        # Voor wanneer deze functie vanuit de main wordt aangeroepen
-        model = joblib.load('./popularity/popularity_model.pkl')
-    finally:
-        return model
+    except FileNotFoundError:
+        try:
+            # Voor wanneer deze functie vanuit de main wordt aangeroepen
+            model = joblib.load('./popularity/popularity_model.pkl')
+        except FileNotFoundError:
+            print("Error: Popularity model niet gevonden.")
+            return None
+    return model
 
 
 def calculate_title_length(title):
@@ -68,11 +90,21 @@ def convert_to_dataframe(data_dict):
 
 def scale_dataframe(df):
     scaler = load_scaler()
+    if scaler is None:
+        print("Error: Scaler niet geladen.")
+        return df
+
     columns = ["views", "likes", "comment_count", "engagement_rate", "views_over_time"]
     df[columns] = scaler.transform(df[columns])
 
     return df
 
+
 def assign_label(df):
     model = load_model()
+    if model is None:
+        print("Error: Model niet geladen.")
+        return None
+
     label = model.predict(df)
+    return label[0]

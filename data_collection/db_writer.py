@@ -98,9 +98,6 @@ def insert_video_data_into_db(video_data):
 
 def update_video_statistic(video_id):
     new_video_statistic = api_caller.get_video_statistic(video_id)
-    # popularity bepalen
-    popularity_label = popularity_analyser.determine_popularity(new_video_statistic)
-    print(f"label: {popularity_label}")
 
     try:
         conn = create_connection()
@@ -246,16 +243,16 @@ def insert_video_tags(video_id, tags):
         conn.close()
 
 def insert_popularity(video_data, date_id):
-    print(f"video data in insert pop: {video_data}")
     pop_rating = popularity_analyser.determine_popularity(video_data)
+    print(f"insert_popularity label: {pop_rating}")
     if pop_rating == 1:
-        pop_label = "populular"
+        pop_label = "popular"
     else:
-        pop_rating = "unpopular"
+        pop_label = "unpopular"
     query = f"""
     UPDATE statistic
-    SET popularity = {pop_label}
-    WHERE video_id = {video_data["video_id"]}
+    SET popularity = '{pop_label}'
+    WHERE video_id = '{video_data["video_id"]}'
     AND date = {date_id}
     """
     try:
