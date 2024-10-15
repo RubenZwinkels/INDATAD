@@ -14,7 +14,13 @@ def determine_sentiment(text):
     sentiment_rating = model.predict(text_vector)
 
     print(f"beoordeling: {sentiment_rating[0]}")
-    return sentiment_rating[0]
+    if sentiment_rating[0] == 0:
+        return "negatief"
+    elif sentiment_rating[0] == 1:
+        return "positief"
+    else:
+        print(f"sentiment rater returnt: {sentiment_rating[0]}. Dit is niet 1 of 0 dus help.")
+        return None
 
 
 def load_model():
