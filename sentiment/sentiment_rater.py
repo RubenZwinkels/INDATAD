@@ -13,7 +13,6 @@ def determine_sentiment(text):
     # sentiment voorspellen op basis van de getransformeerde tekst
     sentiment_rating = model.predict(text_vector)
 
-    print(f"beoordeling: {sentiment_rating[0]}")
     if sentiment_rating[0] == 0:
         return "negatief"
     elif sentiment_rating[0] == 1:

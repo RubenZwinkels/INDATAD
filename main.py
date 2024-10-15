@@ -16,15 +16,20 @@ def update_video_data():
     for vid in all_videos:
         vid_counter += 1
         if vid in excisting_videos:
+            #temp
+            # db_writer.get_and_insert_sentiment(vid)
             pass
         else:
             print(f"video data van video id: {vid} toevoegen")
             new_vid = api_caller.get_video_info(vid)
             db_writer.insert_video_data_into_db(new_vid)
+            db_reader.get_transcription_by_video_id(vid)
+            db_writer.get_and_insert_sentiment(vid)
         print(f"video statistiek van id: {vid} updaten ({vid_counter}/{len(all_videos)})")
         db_writer.update_video_statistic(vid)
         video_data = db_reader.get_recent_video_statistic(vid)
         db_writer.insert_popularity(video_data, db_reader.get_id_by_date(date.today()))
+        print("")
     print("alle video statistieken geupdate \n")
 
 def main():
@@ -32,15 +37,8 @@ def main():
     startup()
     update_video_data()
 
-    # video_data = db_reader.get_recent_video_statistic("04PmEJaYKd0")
-    # current_date = db_reader.get_id_by_date(date.today())
-    # print(current_date)
-    # db_writer.insert_popularity(video_data, current_date)
-
-    # video_statistics = db_reader.get_recent_video_statistic("qEJ4hkpQW8E")
-    # popularity = popularity_analyser.determine_popularity(video_statistics)
-
     print(f"Het script duurde {time.time() - start_time} seconden.")
     db_writer.insert_deploy(time.time() - start_time)
+
 if __name__ == "__main__":
     main()

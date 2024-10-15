@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from data_collection.db_conn import create_connection
 from datetime import datetime
 from popularity import popularity_analyser
-
+from sentiment import sentiment_rater
 def create_table():
     conn = create_connection()
     cur = conn.cursor()
@@ -261,6 +261,27 @@ def insert_popularity(video_data, date_id):
         cur.close()
         conn.close()
 
-def insert_sentiment(video_id, sentiment):
+
+def get_and_insert_sentiment(video_id):
     conn = create_connection()
     cur = conn.cursor()
+    sentiment = None
+
+    try:
+        text = db_reader.get_transcription_by_video_id(video_id)
+        sentiment = sentiment_rater.determine_sentiment(text)
+
+        query = f"""
+        UPDATE video_data
+        SET sentiment = '{sentiment}'
+        WHERE video_id = '{video_id}'
+        """
+
+        cur.execute(query)
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        print(f"fout bij het inserten van sentiment met video_id: {video_id} en sentiment: {sentiment}. Fout: {e}")
+    finally:
+        cur.close()
+        conn.close()

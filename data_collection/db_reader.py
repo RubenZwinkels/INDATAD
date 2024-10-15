@@ -130,7 +130,7 @@ def get_transcription_by_video_id(video_id):
         if data is None:
             print(f"geen transcriptie gevonden met video_id: {video_id}")
 
-        print(data[0])
+        return data[0]
     except Exception as e:
         print(f"error in db_reader.get_transcription_by_video_id: {e}")
     finally:
