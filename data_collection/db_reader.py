@@ -114,3 +114,28 @@ def get_id_by_date(search_date):
             cur.close()
         if conn is not None:
             conn.close()
+
+def get_transcription_by_video_id(video_id):
+    try:
+        conn = create_connection()
+        cur = conn.cursor()
+        query = f"""
+        SELECT transcription 
+        FROM video_data 
+        WHERE video_id = '{video_id}';
+        """
+        cur.execute(query)
+        data = cur.fetchone()
+
+        if data is None:
+            print(f"geen transcriptie gevonden met video_id: {video_id}")
+
+        print(data[0])
+    except Exception as e:
+        print(f"error in db_reader.get_transcription_by_video_id: {e}")
+    finally:
+        if cur is not None:
+            cur.close()
+        if conn is not None:
+            conn.close()
+
