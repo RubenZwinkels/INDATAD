@@ -10,11 +10,6 @@ def create_table():
     cur = conn.cursor()
 
     query = """
-    CREATE TABLE IF NOT EXISTS sentiment (
-        id SERIAL PRIMARY KEY,
-        rating DOUBLE PRECISION
-    );
-
     CREATE TABLE IF NOT EXISTS date (
         id SERIAL PRIMARY KEY,
         date DATE UNIQUE DEFAULT CURRENT_DATE
@@ -24,11 +19,10 @@ def create_table():
         video_id VARCHAR(20) PRIMARY KEY,
         title VARCHAR(255),
         transcription VARCHAR,
-        sentiment INT,
+        sentiment CHAR(8),
         date INT,
         category_id INT,
-        CONSTRAINT fk_date FOREIGN KEY (date) REFERENCES date(id),
-        CONSTRAINT fk_sentiment FOREIGN KEY (sentiment) REFERENCES sentiment(id)
+        CONSTRAINT fk_date FOREIGN KEY (date) REFERENCES date(id)
     );
 
     CREATE TABLE IF NOT EXISTS statistic (
@@ -267,3 +261,6 @@ def insert_popularity(video_data, date_id):
         cur.close()
         conn.close()
 
+def insert_sentiment(video_id, sentiment):
+    conn = create_connection()
+    cur = conn.cursor()
