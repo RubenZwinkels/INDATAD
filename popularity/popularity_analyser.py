@@ -21,8 +21,6 @@ def determine_popularity(video_data):
     if label is None:
         print("determine_popularity: geen label kunnen toewijzen")
         return 0
-
-    print(f"determine_popularity - label: {label}")
     return label
 
 

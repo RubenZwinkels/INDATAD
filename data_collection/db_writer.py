@@ -238,7 +238,6 @@ def insert_video_tags(video_id, tags):
 
 def insert_popularity(video_data, date_id):
     pop_rating = popularity_analyser.determine_popularity(video_data)
-    print(f"insert_popularity label: {pop_rating}")
     if pop_rating == 1:
         pop_label = "popular"
     else:
